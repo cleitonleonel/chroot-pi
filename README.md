@@ -11,6 +11,7 @@ git clone https://github.com/cleitonleonel/chroot-pi.git
 ## Uso:
 ```shell
 cd chroot-pi
+sudo chmod +x ./chroot-to-pi.sh
 sudo ./chroot-to-pi.sh /your/path/raspbian.img raspbian
 ```
 
