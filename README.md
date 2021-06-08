@@ -1,6 +1,6 @@
 # Chroot-pi
 
-<img src="https://github.com/cleitonleonel/Ser2net/blob/master/img/chroot-pi.png?raw=true" alt="Your image title" width="250"/>
+<img src="https://raw.githubusercontent.com/cleitonleonel/chroot-pi/master/chroot-pi.png" alt="Your image title" width="250"/>
 
 ## Clonando o projeto:
 
