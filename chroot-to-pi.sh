@@ -254,4 +254,4 @@ else
   fi
 fi
 
-exit
+exit && sudo umount -f /mnt/raspbian/ >/dev/null
