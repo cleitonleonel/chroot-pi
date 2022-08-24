@@ -106,16 +106,17 @@ img_download () {
 
   echo 'Descompactando arquivo!!! Aguarde...'
 
-  file = $( head -n 1 filename.txt)
-  extension = echo ${file##*.}
-  if ["$extension" = 'zip']
+  file=$( head -n 1 filename.txt)
+  extension=`echo ${file##*.}`
+
+  if [ ${extension} = 'zip' ]
   then
     unzip $( head -n 1 filename.txt)
   else
     unxz $( head -n 1 filename.txt)
   fi
 
-  IMG=$( tail -n 1 filename.txt).img
+  IMG=`sed 's/\(.*\)'.${extension}'/\1/' filename.txt`
 
   if [ -z "$IMG" ]
   then
