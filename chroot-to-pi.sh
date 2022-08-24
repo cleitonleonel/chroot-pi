@@ -22,7 +22,7 @@ fi
 if ! which qemu-arm-static > /dev/null 2>&1;
 then
   echo 'Instalando dependências...'
-  sudo apt-get install gcc-arm-linux-gnueabihf libc6-dev-armhf-cross qemu-user-static > /dev/null 2>&1
+  sudo apt-get install -y gcc-arm-linux-gnueabihf libc6-dev-armhf-cross qemu-user-static > /dev/null 2>&1
   sudo apt install -y qemu qemu-user-static binfmt-support > /dev/null 2>&1
 fi
 
@@ -88,25 +88,33 @@ img_download () {
 
   DIR_URL='https://downloads.raspberrypi.org/raspios_full_armhf/images/raspios_full_armhf-'$( tail -n 1 dirname.txt)'/'
   wget -q --save-cookies cookies.txt $DIR_URL -O- \
-     | sed -rn 's/.*href="([0-9A-Za-z.-]*).zip".*/\1/p' > filename.txt
+     | sed -rn 's/.*href="([0-9A-Za-z.-]*)([.zip|.xz]*)".*/\1/p' > filename.txt
 
   echo 'Fazendo download da imagem mais recente de '$( tail -n 1 dirname.txt):
 
-  IMG_LINK='https://downloads.raspberrypi.org/raspios_full_armhf/images/raspios_full_armhf-'$( tail -n 1 dirname.txt)'/'$( tail -n 1 filename.txt).zip
+  IMG_LINK='https://downloads.raspberrypi.org/raspios_full_armhf/images/raspios_full_armhf-'$( tail -n 1 dirname.txt)'/'$( head -n 1 filename.txt)
 
   #echo 'Aguarde o download terminar...'
   #wget --load-cookies cookies.txt -O $(<filename.txt).zip \
        #'https://downloads.raspberrypi.org/raspios_full_armhf/images/raspios_full_armhf-'$( tail -n 1 dirname.txt)'/'$( tail -n 1 filename.txt).zip
 
 	reset
-  wget --load-cookies cookies.txt -O $( tail -n 1 filename.txt).zip --progress=dot $IMG_LINK 2>&1 |\
+  wget --load-cookies cookies.txt -O $( head -n 1 filename.txt) --progress=dot $IMG_LINK 2>&1 |\
   grep "%" |\
-  sed -u -e "s,\.,,g" | awk '{print $2}' | sed -u -e "s,\%,,g"  | dialog --gauge "$( tail -n 1 filename.txt).zip" 10 100
+  sed -u -e "s,\.,,g" | awk '{print $2}' | sed -u -e "s,\%,,g"  | dialog --gauge "$( head -n 1 filename.txt)" 10 100
 	reset
 
   echo 'Descompactando arquivo!!! Aguarde...'
 
-  unzip $( tail -n 1 filename.txt).zip
+  file = $( head -n 1 filename.txt)
+  extension = echo ${file##*.}
+  if ["$extension" = 'zip']
+  then
+    unzip $( head -n 1 filename.txt)
+  else
+    unxz $( head -n 1 filename.txt)
+  fi
+
   IMG=$( tail -n 1 filename.txt).img
 
   if [ -z "$IMG" ]
@@ -177,7 +185,7 @@ else
 fi
 
 make_install () {
-  #echo "Mudando para diretório: ===>>> /home/pi/fontes"
+  echo "Mudando para diretório: ===>>> /home/pi/fontes"
   cd /home/pi/fontes && chmod +x ./make_and_run.sh && ./make_and_run.sh && exit
 }
 
@@ -189,7 +197,7 @@ quit () {
   sleep 1
 
   if [[ $(findmnt -M "$MNT") ]]; then
-    sudo umount -f /mnt/raspbian/ >/dev/null
+    sudo umount -f ${MNT} >/dev/null
   fi
 }
 
@@ -254,4 +262,4 @@ else
   fi
 fi
 
-exit && sudo umount -f /mnt/raspbian/ >/dev/null
+exit && sudo umount -f ${MNT} >/dev/null
