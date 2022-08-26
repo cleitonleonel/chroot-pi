@@ -66,54 +66,38 @@ yes_no () {
   reset
 }
 
-progress () {
-  reset
-  (
-    items=123
-    processed=0
-    while [ $processed -le $items ]; do
-      pct=$(( $processed * 100 / $items ))
-      echo "Processing item $processed"
-      echo "$pct"
-      processed=$((processed+1))
-      sleep 0.1
-    done
-  ) | dialog --title "RaspiberryPI Virtual Console" --gauge "Aguarde um instante..." 10 60 0
-  reset
-}
-
 img_download () {
   wget -q --save-cookies cookies.txt $BASE_URL -O- \
        | sed -rn 's/.*raspios_full_armhf-([0-9.-]*).*/\1/p' > dirname.txt
 
-  DIR_URL='https://downloads.raspberrypi.org/raspios_full_armhf/images/raspios_full_armhf-'$( tail -n 1 dirname.txt)'/'
+  DIR_URL='https://downloads.raspberrypi.org/raspios_full_armhf/images/raspios_full_armhf-'$( tail -n 1 dirname.txt )'/'
   wget -q --save-cookies cookies.txt $DIR_URL -O- \
      | sed -rn 's/.*href="([0-9A-Za-z.-]*)([.zip|.xz]*)".*/\1/p' > filename.txt
 
-  echo 'Fazendo download da imagem mais recente de '$( tail -n 1 dirname.txt):
+  echo 'Fazendo download da imagem mais recente de '$( tail -n 1 dirname.txt ):
 
-  IMG_LINK='https://downloads.raspberrypi.org/raspios_full_armhf/images/raspios_full_armhf-'$( tail -n 1 dirname.txt)'/'$( head -n 1 filename.txt)
+  IMG_LINK='https://downloads.raspberrypi.org/raspios_full_armhf/images/raspios_full_armhf-'$( tail -n 1 dirname.txt )'/'$( head -n 1 filename.txt )
 
   #echo 'Aguarde o download terminar...'
   #wget --load-cookies cookies.txt -O $(<filename.txt).zip \
        #'https://downloads.raspberrypi.org/raspios_full_armhf/images/raspios_full_armhf-'$( tail -n 1 dirname.txt)'/'$( tail -n 1 filename.txt).zip
 
 	reset
-  wget --load-cookies cookies.txt -O $( head -n 1 filename.txt) --progress=dot $IMG_LINK 2>&1 |\
+  wget --load-cookies cookies.txt -O $( head -n 1 filename.txt ) --progress=dot $IMG_LINK 2>&1 |\
   grep "%" |\
-  sed -u -e "s,\.,,g" | awk '{print $2}' | sed -u -e "s,\%,,g"  | dialog --gauge "$( head -n 1 filename.txt)" 10 100
+  sed -u -e "s,\.,,g" | awk '{print $2}' | sed -u -e "s,\%,,g"  | dialog --gauge "$( head -n 1 filename.txt )" 10 100
 	reset
 
   echo 'Descompactando arquivo!!! Aguarde...'
 
-  file=$( head -n 1 filename.txt)
+  file=$( head -n 1 filename.txt )
   extension=`echo ${file##*.}`
 
   if [ ${extension} = 'zip' ]
   then
-    unzip $( head -n 1 filename.txt)
+    unzip $( head -n 1 filename.txt )
   else
-    unxz $( head -n 1 filename.txt)
+    unxz $( head -n 1 filename.txt )
   fi
 
   IMG=`sed 's/\(.*\)'.${extension}'/\1/' filename.txt`
@@ -154,6 +138,7 @@ then
 else
   #rm -r fontes
   #mkdir fontes
+  echo "Copiando fontes"
   cp -r ${3}/* fontes
 fi
 
@@ -175,13 +160,13 @@ cp /usr/bin/qemu-arm-static /mnt/${MNT}/usr/bin/
 cp /etc/resolv.conf /mnt/${MNT}/etc/
 
 if [ -d "$DIR" ]; then
-  #echo "Movendo ${DIR} para: ===>>> /mnt/${MNT}/home/pi/fontes"
-  cp -r fontes /mnt/${MNT}/home/pi
-  cp ./make_and_run.sh /mnt/${MNT}/home/pi/fontes
+  # echo "Movendo ${DIR} para: ===>>> /mnt/${MNT}/home/pi/fontes"
+  cp -r fontes/ /mnt/${MNT}/home/pi/
+  cp ./make_and_run.sh /mnt/${MNT}/home/pi/fontes/
   chmod 777 -R /mnt/${MNT}/home/pi/fontes
 else
   echo "Fontes não encontradas, copiando fontes de: /mnt/${MNT}/home/pi/"
-  cp -r /mnt/${MNT}/home/pi/fontes ./
+  cp -r /mnt/${MNT}/home/pi/fontes/ ./
   chmod 777 -R fontes
 fi
 
@@ -218,9 +203,7 @@ yes_no
 
 if [ $YESNO = YES ] &>/dev/null || [ $YESNO = yes ] &>/dev/null || [ $YESNO = y ] &>/dev/null; then
   export -f make_install
-  chroot /mnt/${MNT} /bin/bash -c "make_install" &>/dev/null &
-
-  progress
+  chroot /mnt/${MNT} /bin/bash -c "make_install" #&>/dev/null &
   copy_and_extract
   quit
 else
@@ -263,4 +246,6 @@ else
   fi
 fi
 
-exit && sudo umount -f ${MNT} >/dev/null
+exit && sudo umount -f ${MNT} >/dev/null && \
+sudo umount -f ${MNT}/{dev/pts,dev,sys,proc,boot,} >/dev/null && \
+sudo umount -l ${MNT} >/dev/null

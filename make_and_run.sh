@@ -18,21 +18,21 @@ function exec_melinux() {
 }
 
 function export_bin() {
-  echo 'Movendo arquivo para: ===>>> melinux@'$RASPBERRY_IP:$MELINUX_DIR
+
   if [ "$COMMAND" = "quiet" ]
   then
-    pscp -pw "melinux" melinux 'melinux@'$RASPBERRY_IP:'./' >/dev/null &
+    pscp -P 22 -pw "melinux" melinux 'melinux@'$RASPBERRY_IP:'./' >/dev/null &
   else
-    pscp -pw "melinux" melinux 'melinux@'$RASPBERRY_IP:'./'
+    pscp -P 22 -pw "melinux" melinux 'melinux@'$RASPBERRY_IP:'./'
   fi
 
   if [ $? -eq 0 ]
   then
-    echo 'Arquivo movido com sucesso!!!'
+    echo 'Arquivo copiado com sucesso!!!'
     sleep 2
     #exec_melinux
   else
-    echo 'Erro ao mover arquivo.'
+    echo 'Erro ao copiar arquivo.'
   fi
   exit
 }
