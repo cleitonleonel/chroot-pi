@@ -111,8 +111,8 @@ copy_and_extract () {
 send_email () {
   rtmp_to=$(dialog --title "Ubuntu HB Virtual Console" --inputbox "Digite o e-mail: " 8 40 3>&1 1>&2 2>&3 3>&-)
   rtmp_url="smtps://smtp.gmail.com:465"
-  rtmp_from="contato@otmasolucoes.com.br"
-  rtmp_credentials="contato@otmasolucoes.com.br:ulhsmuepjmrwyusf"
+  rtmp_from="email"
+  rtmp_credentials="email:senha"
 
   file_upload=$(pwd)"/melin_ubuntu.gz"
   mimetype=$(file --mime-type "$file_upload" | sed 's/.*: //')
