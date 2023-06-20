@@ -92,7 +92,7 @@ img_download () {
   echo 'Descompactando arquivo!!! Aguarde...'
 
   file=$( head -n 1 filename.txt )
-  extension=`echo ${file##*.}`
+  extension=${file##*.}
 
   if [ "${extension}" = 'zip' ]
   then
@@ -202,8 +202,8 @@ copy_and_extract () {
 send_email () {
   rtmp_to=$(dialog --title "RaspiberryPI Virtual Console" --inputbox "Digite o e-mail: " 8 40 3>&1 1>&2 2>&3 3>&-)
   rtmp_url="smtps://smtp.gmail.com:465"
-  rtmp_from="email"
-  rtmp_credentials="credentials"
+  rtmp_from="contato@otmasolucoes.com.br"
+  rtmp_credentials="contato@otmasolucoes.com.br:ulhsmuepjmrwyusf"
 
   file_upload=$(pwd)"/melin_rasp.gz"
   mimetype=$(file --mime-type "$file_upload" | sed 's/.*: //')
@@ -261,8 +261,7 @@ if [ -x "$(which curl)" ]; then
   fi
 fi
 
-if [ -z "$RASPBERRY_IP" ]
-then
+if [ -z "$RASPBERRY_IP" ]; then
   echo "Saindo..."
   exit
 else
